@@ -36,7 +36,7 @@
     .point {
       min-height: 100vh;
       padding: 5rem;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.6);
       border-bottom: 2px solid #333;
     }
 
@@ -78,25 +78,21 @@
     <p>Closing words...</p>
   </section>
 
-  <!-- Ambient Audio -->
-  <audio id="ambient" autoplay loop>
-    <source src="ambient.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- Sound Effects -->
-  <audio id="chime" src="chime.mp3" preload="auto"></audio>
-  <audio id="echo" src="echo.mp3" preload="auto"></audio>
-
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    // Helper: play sound by ID
-    function playSound(id) {
-      const sound = document.getElementById(id);
-      if (sound) {
-        sound.currentTime = 0;
-        sound.play();
-      }
+    // Simple Web Audio beep generator
+    function playBeep(freq=440, duration=0.3) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
     }
 
     // Title animation
@@ -105,7 +101,7 @@
       opacity: 0,
       y: -100,
       ease: "power4.out",
-      onComplete: () => playSound("chime")
+      onComplete: () => playBeep(880, 0.5)
     });
 
     // Scroll-triggered animations with sound
@@ -114,7 +110,7 @@
         scrollTrigger: {
           trigger: section,
           start: "top 80%",
-          onEnter: () => playSound("echo")
+          onEnter: () => playBeep(660, 0.4)
         },
         opacity: 0,
         y: 100,
@@ -127,7 +123,7 @@
       scrollTrigger: {
         trigger: ".final",
         start: "top 80%",
-        onEnter: () => playSound("chime")
+        onEnter: () => playBeep(330, 0.6)
       },
       scale: 0.8,
       opacity: 0,
@@ -173,3 +169,4 @@
   </script>
 </body>
 </html>
+
